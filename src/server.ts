@@ -1,12 +1,10 @@
 import fastify from "fastify";
-import { knex } from './database'
+import {createHeaderRoute} from './routes/createHeader'
 
 const app = fastify()
 
-app.get('/hello', async() => {
-  const tables = await knex('sqlite_schema').select('*')
-
-  return tables
+app.register(createHeaderRoute, {
+  prefix:  'createHeaderRoute',
 })
 
-app.listen({port: 3333}).then(function() {console.log("server is running")})
+app.listen({port: 1298}).then(function() {console.log("server is running")})
