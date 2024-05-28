@@ -2,14 +2,15 @@ import { z } from 'zod'
 import {knex} from '../database'
 import { FastifyInstance } from 'fastify'
 import { randomUUID } from 'node:crypto'
+import { checkSessionId } from '../middlawares/check-if-sessionid-exists'
 
 export async function createHeaderRoute(app: FastifyInstance) {
-  app.get('/', async () => {
+  app.get('/',{preHandler: [checkSessionId]}, async () => {
     const transactions = await knex('f4311').select()
     return transactions
   })
 
-  app.get('/:contrato', async (request, reply) => {
+  app.get('/:contrato',{preHandler: [checkSessionId]}, async (request, reply) => {
     const getContractNumber = z.object({
       contrato: z.string().uuid()
     })
