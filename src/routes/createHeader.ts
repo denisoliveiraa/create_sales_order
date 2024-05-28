@@ -7,19 +7,31 @@ export async function createHeaderRoute(app: FastifyInstance) {
   app.get('/', async () => {
     const transactions = await knex('f4311').select()
     return transactions
-  }),
+  })
 
   app.get('/:contrato', async (request, reply) => {
     const getContractNumber = z.object({
       contrato: z.string().uuid()
     })
-
     const { contrato } = getContractNumber.parse(request.params)
 
     const transanction = await knex('f4311').where('doco', contrato )
 
     return { transanction }
 
+  }),
+
+  app.get('/jokes', async (request, reply) => {
+    const getValues = z.object({
+      fazenda: z.string(),
+      totalBruto: z.number()
+    })
+
+    const { fazenda, totalBruto  } = getValues.parse(request.body)
+
+    const result = await knex('f4311').count('urec', totalBruto, {as:'total' }).groupBy()
+
+    return result
   })
 
   app.post('/', async (request, reply) => {
@@ -43,6 +55,18 @@ export async function createHeaderRoute(app: FastifyInstance) {
         throw new Error ("Valor deve ser maior que zero")
       }
 
+      let sessionId = request.cookies.sessionId
+
+      if (!sessionId) {
+        sessionId = randomUUID()
+
+        reply.cookie('sessionId', sessionId,
+        {
+          path: '/',
+          maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days 
+        })
+      }
+
        await knex('F4311')
       .insert({
         doco: randomUUID(),
@@ -57,7 +81,8 @@ export async function createHeaderRoute(app: FastifyInstance) {
         urec: 0,
         shan: fazenda,
         litm: item,
-        rcto: ' '
+        rcto: ' ',
+        sessionId: sessionId
       })
 
 

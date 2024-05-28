@@ -1,8 +1,10 @@
 import fastify from "fastify";
 import {createHeaderRoute} from './routes/createHeader'
+import cookie from '@fastify/cookie'
 
 const app = fastify()
 
+app.register(cookie)
 app.register(createHeaderRoute, {
   prefix:  'createHeaderRoute',
 })
